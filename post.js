@@ -81,29 +81,21 @@ async function main () {
 }
 
 async function get_events () {
-  const workspaces = await zenkit.get("users/me/workspacesWithLists")
-  const workspace = workspaces.data.find(x => x.name == "Mozilla Festival 2019")
-  if (!workspace) throw "2019 workspace doesn't exist"
-
-  const lists = workspace.lists
-  const entries = await zenkit.post(`lists/${lists[0].shortId}/entries/filter/list`)
-  // const entries = await zenkit.post(`lists/2RH604FcHf/entries/filter/list`)
+  const entries = await zenkit.post("lists/2RH604FcHf/entries/filter/list")
+  if (!entries) throw "entries is empty"
 
   const events = []
 
   entries.data.listEntries.forEach(e => {
-    let status = e["cd94d644-663d-484b-8dcc-1c764a24822c_categories_sort"][0]["name"]
-    if (status != "Accepted") return
-
     let id = e["shortId"]
-    let html = e["f1d85268-8b9a-49da-9487-3ee7ecac4e74_text"]
+    let updated_at = new Date(e["updated_at"])
     let hash = {
       id: id,
-      updated_at: new Date(e["updated_at"]),
-      title: e["d1188949-7559-423f-abeb-abd0158e8fe5_text"],
-      authors: /<em>(.*)<\/em>/.exec(html)[0],
-      description: e["922c3ec7-6b95-4e4e-9345-f10fec6a9a89_text"],
-      track: lists[0].name
+      updated_at: updated_at,
+      title: e["48420d56-1332-4366-8e2a-bcce7b33d179_text"],
+      authors: e["c4df21bc-c38b-432d-abb7-ad469f8dba9e_references_sort"][0]["displayString"],
+      description: e["a200e6e4-370d-440c-89af-abf264bf14a6_text"],
+      track: e["ed0250e6-6282-4922-9716-dfd7a29aafb7_categories_sort"][0]["name"]
     }
 
     events.push(hash)
