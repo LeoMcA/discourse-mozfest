@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-const POST_GENERATOR_VERSION = 1
+const POST_GENERATOR_VERSION = 3
 const MOZFEST_CATEGORY_ID = 5
 
 const zenkit = axios.create({
@@ -34,7 +34,8 @@ async function main () {
         data: {
           category: MOZFEST_CATEGORY_ID,
           title: event.title,
-          raw: generate_post(event)
+          raw: generate_post(event),
+          tags: generate_tags(event)
         }
       })
       if (!db[event.id]) db[event.id] = {}
@@ -50,7 +51,8 @@ async function main () {
         method: "put",
         url: `t/-/${event.topic_id}.json`,
         data: {
-          title: event.title
+          title: event.title,
+          tags: generate_tags(event)
         }
       })
       await catch_and_retry_request({
@@ -179,6 +181,10 @@ async function complete_request (event, value, db) {
   value.updated_at = event.updated_at
   value.gen = POST_GENERATOR_VERSION
   await save_db(db)
+}
+
+function generate_tags (hash) {
+  return [hash.track]
 }
 
 function generate_post (hash) {
