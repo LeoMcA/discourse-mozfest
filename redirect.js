@@ -1,6 +1,6 @@
 const fs = require('fs').promises
 
-const DISCOURSE_URL = "https://discourse.mozilla.org"
+const DISCOURSE_URL = process.env.DISCOURSE_URL
 
 async function main () {
   let redirect = ""
@@ -9,10 +9,10 @@ async function main () {
 
   for (k in data) {
     const val = data[k]
-    redirect += `/2019/${k} ${DISCOURSE_URL}/t/${val.topic_id} 302\n`
+    redirect += `/2019/${k} ${DISCOURSE_URL}t/${val.topic_id} 302\n`
   }
 
-  await fs.writeFile("./_redirect", redirect, "utf8")
+  await fs.writeFile("./_redirects", redirect, "utf8")
 }
 
 main()

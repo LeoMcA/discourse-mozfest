@@ -1,8 +1,8 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-const POST_GENERATOR_VERSION = 3
-const MOZFEST_CATEGORY_ID = 5
+const POST_GENERATOR_VERSION = 4
+const MOZFEST_CATEGORY_ID = process.env.CATEGORY_ID
 
 const zenkit = axios.create({
   baseURL: "https://zenkit.com/api/v1/",
@@ -13,10 +13,10 @@ const zenkit = axios.create({
 })
 
 const discourse = axios.create({
-  baseURL: "http://localhost:3000/",
+  baseURL: process.env.DISCOURSE_URL,
   headers: {
     "Api-Key": process.env.DISCOURSE_KEY,
-    "Api-User": "system"
+    "Api-User": process.env.DISCOURSE_USER
   }
 })
 
