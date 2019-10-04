@@ -77,31 +77,50 @@ async function main () {
       await save_db(db)
     }
 
+    for (const event of diff.duplicates) {
+      console.log(`Marking ${event.id} duplicate of ${event.duplicate_of} (${event.title})`)
+      db[event.id] = { duplicate_of: event.duplicate_of }
+      await save_db(db)
+    }
+
   } catch (error) {
     console.error(error)
   }
 }
 
 async function get_events () {
-  const entries = await zenkit.post("lists/2RH604FcHf/entries/filter/list")
+  const entries = await zenkit.post("lists/2RH604FcHf/entries/filter/list", { limit: 1000 })
   if (!entries) throw "entries is empty"
+
+  console.log(entries.data.countData.total)
+  console.log(entries.data.listEntries.length)
 
   const events = []
 
   entries.data.listEntries.forEach(e => {
     let id = e["shortId"]
     let updated_at = new Date(e["updated_at"])
+    let authors = [
+      e["c4df21bc-c38b-432d-abb7-ad469f8dba9e_references_sort"][0],
+      e["4dd2b920-7880-4805-a6eb-4f29b982bd45_references_sort"][0],
+      e["1d950611-43a7-456e-b0c7-e6b237ace3bc_references_sort"][0],
+      e["43e1d79f-ac07-4f15-9261-032a4ccb2f93_references_sort"][0],
+      e["33ff83a1-fe5b-4fcc-8ce3-445355283734_references_sort"][0],
+    ].filter(x => x).map(x => x["displayString"])
     let hash = {
       id: id,
       updated_at: updated_at,
       title: e["48420d56-1332-4366-8e2a-bcce7b33d179_text"],
-      authors: e["c4df21bc-c38b-432d-abb7-ad469f8dba9e_references_sort"][0]["displayString"],
+      authors: authors,
       description: e["a200e6e4-370d-440c-89af-abf264bf14a6_text"],
+      goals: e["be956667-e2ed-4761-b08e-016800e104da_text"],
       track: e["ed0250e6-6282-4922-9716-dfd7a29aafb7_categories_sort"][0]["name"]
     }
 
     events.push(hash)
   })
+
+  console.log(`${events.length} events`)
 
   return events
 }
@@ -122,6 +141,18 @@ async function generate_diff (events) {
     post: [],
     update: [],
     delete: [],
+    duplicates: []
+  }
+  const titles = {}
+
+  if (process.env.DELETE_ALL === "true") {
+    if (!db) return
+    for (k in db) {
+      const val = db[k]
+      val.id = k
+      diff.delete.push(val)
+    }
+    return diff
   }
 
   events.forEach(e => {
@@ -129,8 +160,19 @@ async function generate_diff (events) {
     if (!db[id]) db[id] = {}
     const val = db[id]
     val.run_at = now
+    val.updated_at = new Date(val.updated_at)
+
+    const standard_title = e.title.toLowerCase().trim()
+    const duplicate = titles[standard_title]
+    if (duplicate) {
+      e.duplicate_of = duplicate
+      return diff.duplicates.push(e)
+    } else {
+      titles[standard_title] = e.id
+    }
+
     if (val && val.topic_id) {
-      if (val.updated_at != e.updated_at || val.gen != POST_GENERATOR_VERSION) {
+      if (val.updated_at.valueOf() != e.updated_at.valueOf() || val.gen != POST_GENERATOR_VERSION) {
         e.topic_id = val.topic_id
         e.post_id = val.post_id
         e.gen = POST_GENERATOR_VERSION
@@ -159,19 +201,30 @@ async function catch_and_retry_request (req, n) {
   try {
     return await discourse(req)
   } catch (e) {
-    if (e.response && e.response.status == 429) {
-      var retry_after = parseInt(e.response.headers["retry-after"], 10)
-      if (!retry_after) retry_after = n
-      console.error(`ERROR: 429 backing off for ${retry_after} seconds`)
-      await new Promise(r => setTimeout(r, retry_after * 1000))
-      return await catch_and_retry_request(req, n + 1)
+    if (e.response) {
+      switch (e.response.status) {
+        case 429:
+          var retry_after = parseInt(e.response.headers["retry-after"], 10)
+          if (!retry_after) retry_after = n
+          console.error(`ERROR: 429 backing off for ${retry_after} seconds`)
+          await new Promise(r => setTimeout(r, retry_after * 1000))
+          return await catch_and_retry_request(req, n + 1)
+        case 422:
+          if (e.response.data.errors.includes("Title is too short (minimum is 10 characters)")) {
+            console.error("ERROR title is too short, making longer")
+            req.data.title = req.data.title + "- Mozilla Festival 2019 Session"
+            return await catch_and_retry_request(req, n)
+          }
+        default:
+          console.error(`ERROR: unrecoverable, request:`)
+          console.error(req)
+          console.error(e.response.status)
+          console.error(e.response.data)
+          throw "FAILED"
+      }
     } else {
       console.error(`ERROR: unrecoverable, request:`)
       console.error(req)
-      if (e.response) {
-        console.error(e.response.status)
-        console.error(e.response.data)
-      }
       throw "FAILED"
     }
   }
@@ -188,9 +241,13 @@ function generate_tags (hash) {
 }
 
 function generate_post (hash) {
-  return `${hash.authors}
+  return `*This session is facilitated by ${hash.authors.join(", ")}*
 
-${hash.description.replace("\n", "\n\n")}`
+### About this session
+${hash.description.replace("\n", "\n\n")}
+
+### Goals of this session
+${hash.goals.replace("\n", "\n\n")}`
 }
 
 main()
