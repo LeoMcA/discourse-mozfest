@@ -12,7 +12,11 @@ async function main () {
     const val = data[k]
     if (val.duplicate_of) {
       const original = data[val.duplicate_of]
-      redirect += `/2019/${k} ${DISCOURSE_URL}t/${original.topic_id} 302\n`
+      if (!original) {
+        console.error(`ERROR: ${k} is duplicate of ${val.duplicate_of} which doesn't exist`)
+      } else {
+        redirect += `/2019/${k} ${DISCOURSE_URL}t/${original.topic_id} 302\n`
+      }
     } else {
       redirect += `/2019/${k} ${DISCOURSE_URL}t/${val.topic_id} 302\n`
     }
