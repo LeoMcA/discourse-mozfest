@@ -107,14 +107,22 @@ async function get_events () {
       e["43e1d79f-ac07-4f15-9261-032a4ccb2f93_references_sort"][0],
       e["33ff83a1-fe5b-4fcc-8ce3-445355283734_references_sort"][0],
     ].filter(x => x).map(x => x["displayString"])
+    let title = e["48420d56-1332-4366-8e2a-bcce7b33d179_text"]
+    let track = e["ed0250e6-6282-4922-9716-dfd7a29aafb7_categories_sort"][0]
+    if (track) {
+      track = track["name"]
+    } else {
+      console.log(`"${title}" doesn't have a track, not posting`)
+      return
+    }
     let hash = {
       id: id,
       updated_at: updated_at,
-      title: e["48420d56-1332-4366-8e2a-bcce7b33d179_text"],
+      title: title,
       authors: authors,
       description: e["a200e6e4-370d-440c-89af-abf264bf14a6_text"],
       goals: e["be956667-e2ed-4761-b08e-016800e104da_text"],
-      track: e["ed0250e6-6282-4922-9716-dfd7a29aafb7_categories_sort"][0]["name"]
+      track: track
     }
 
     events.push(hash)
