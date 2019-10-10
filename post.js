@@ -196,7 +196,7 @@ async function generate_diff (events) {
   for (k in db) {
     const val = db[k]
     val.id = k
-    if (val.run_at != now) {
+    if (val.run_at != now && !val.duplicate_of) {
       diff.delete.push(val)
     }
   }
