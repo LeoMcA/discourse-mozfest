@@ -108,6 +108,10 @@ async function get_events () {
       e["33ff83a1-fe5b-4fcc-8ce3-445355283734_references_sort"][0],
     ].filter(x => x).map(x => x["displayString"])
     let title = e["48420d56-1332-4366-8e2a-bcce7b33d179_text"]
+    if (title.trim() === "") {
+      console.log(`${id} has no title, not posting`)
+      return
+    }
     let track = e["ed0250e6-6282-4922-9716-dfd7a29aafb7_categories_sort"][0]
     if (track) {
       track = track["name"]
