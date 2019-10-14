@@ -23,5 +23,6 @@ deploy:
   keep_history: true
   verbose: true
   cleanup: false
+  commit_message: Script ran in Travis
   repo: LeoMcA/discourse-mozfest-redirect
   target_branch: travis
