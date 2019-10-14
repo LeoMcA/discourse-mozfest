@@ -2,6 +2,18 @@ const axios = require('axios')
 const fs = require('fs').promises
 
 const POST_GENERATOR_VERSION = 6
+const INCLUDED_TRACKS = [
+  "Web Literacy",
+  "Openness",
+  "Digital Inclusion",
+  "Decentralisation",
+  "Privacy & Security",
+  "Youth Zone",
+  "Queering",
+  "Neurodiversity",
+  "Arts & Culture",
+  "MoZone",
+]
 const MOZFEST_CATEGORY_ID = process.env.CATEGORY_ID
 
 const zenkit = axios.create({
@@ -119,6 +131,10 @@ async function get_events () {
     let track = e["ed0250e6-6282-4922-9716-dfd7a29aafb7_categories_sort"][0]
     if (track) {
       track = track["name"]
+      if (!INCLUDED_TRACKS.includes(track)) {
+        console.log(`"${title}" is in "${track}", not posting`)
+        return
+      }
     } else {
       console.log(`"${title}" doesn't have a track, not posting`)
       return
