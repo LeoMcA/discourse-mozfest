@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-const POST_GENERATOR_VERSION = 6
+const POST_GENERATOR_VERSION = 7
 const INCLUDED_TRACKS = [
   "Web Literacy",
   "Openness",
@@ -276,6 +276,8 @@ function generate_tags (hash) {
 
 function generate_post (hash) {
   return `*This session is facilitated by ${hash.authors.join(", ")}*
+
+[Show on schedule](https://public.zenkit.com/i/2RH604FcHf/${hash.id}/schedule?v=LK9b3laIX&hide=workspaceLists)
 
 ### About this session
 ${hash.description.replace("\n", "\n\n")}
