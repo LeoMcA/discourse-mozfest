@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-const POST_GENERATOR_VERSION = 4
+const POST_GENERATOR_VERSION = 5
 const MOZFEST_CATEGORY_ID = process.env.CATEGORY_ID
 
 const zenkit = axios.create({
@@ -249,7 +249,7 @@ async function complete_request (event, value, db) {
 }
 
 function generate_tags (hash) {
-  return [hash.track]
+  return [hash.track.replace(/&/g, "and")]
 }
 
 function generate_post (hash) {
