@@ -244,7 +244,7 @@ async function catch_and_retry_request (req, n) {
         case 422:
           if (e.response.data.errors.includes("Title is too short (minimum is 10 characters)")) {
             console.error("ERROR title is too short, making longer")
-            req.data.title = req.data.title + "- Mozilla Festival 2019 Session"
+            req.data.title = req.data.title + " - Mozilla Festival 2019 Session"
             return await catch_and_retry_request(req, n)
           }
         default:
