@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-const POST_GENERATOR_VERSION = 5
+const POST_GENERATOR_VERSION = 6
 const MOZFEST_CATEGORY_ID = process.env.CATEGORY_ID
 
 const zenkit = axios.create({
@@ -63,6 +63,10 @@ async function main () {
             raw: generate_post(event)
           }
         }
+      })
+      await catch_and_retry_request({
+        method: "put",
+        url: `t/${event.topic_id}/reset-bump-date`
       })
       await complete_request(event, db[event.id], db)
     }
