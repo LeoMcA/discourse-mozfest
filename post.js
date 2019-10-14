@@ -13,6 +13,8 @@ const INCLUDED_TRACKS = [
   "Neurodiversity",
   "Arts & Culture",
   "MoZone",
+  "Innovation",
+  "Dialogues & Debates",
 ]
 const MOZFEST_CATEGORY_ID = process.env.CATEGORY_ID
 
