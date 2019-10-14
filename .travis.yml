@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+- node
+install:
+- npm install
+before_script:
+- wget https://raw.githubusercontent.com/LeoMcA/discourse-mozfest-redirect/master/site/db.json
+script:
+- node post.js
+- node redirect.js
+after_failure:
+- cat db.json
+before_deploy:
+- mkdir site
+- mv db.json site/
+- mv _redirects site/
