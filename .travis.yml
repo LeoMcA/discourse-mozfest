@@ -5,12 +5,23 @@ install:
 - npm install
 before_script:
 - wget https://raw.githubusercontent.com/LeoMcA/discourse-mozfest-redirect/master/site/db.json
+- openssl aes-256-cbc -K $encrypted_3c4e0049f2aa_key -iv $encrypted_3c4e0049f2aa_iv -in .deploy/id_rsa.enc -out .deploy/id_rsa -d
 script:
 - node post.js
 - node redirect.js
 after_failure:
 - cat db.json
 before_deploy:
-- mkdir site
-- mv db.json site/
-- mv _redirects site/
+- mkdir -p deploy/site
+- mv db.json deploy/site/
+- mv _redirects deploy/site/
+deploy:
+  provider: pages:git
+  edge: true # opt in to dpl v2
+  local_dir: deploy
+  deploy_key: .deploy/id_rsa
+  keep_history: true
+  verbose: true
+  cleanup: false
+  repo: LeoMcA/discourse-mozfest-redirect
+  target_branch: travis
