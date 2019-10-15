@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-const POST_GENERATOR_VERSION = 7
+const POST_GENERATOR_VERSION = 8
 const INCLUDED_TRACKS = [
   "Web Literacy",
   "Openness",
@@ -126,7 +126,7 @@ async function get_events () {
       e["33ff83a1-fe5b-4fcc-8ce3-445355283734_references_sort"][0],
     ].filter(x => x).map(x => x["displayString"])
     let title = e["48420d56-1332-4366-8e2a-bcce7b33d179_text"]
-    if (title.trim() === "") {
+    if (is_blank(title)) {
       console.log(`${id} has no title, not posting`)
       return
     }
@@ -278,12 +278,16 @@ function generate_post (hash) {
   return `*This session is facilitated by ${hash.authors.join(", ")}*
 
 [Show on schedule](https://public.zenkit.com/i/2RH604FcHf/${hash.id}/schedule?v=LK9b3laIX&hide=workspaceLists)
-
+` + (is_blank(hash.description) ? "" : `
 ### About this session
 ${hash.description.replace("\n", "\n\n")}
-
+`) + (is_blank(hash.goals) ? "" : `
 ### Goals of this session
-${hash.goals.replace("\n", "\n\n")}`
+${hash.goals.replace("\n", "\n\n")}`)
+}
+
+function is_blank (x) {
+  return !x || x.trim() === ""
 }
 
 main()
