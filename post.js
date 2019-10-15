@@ -243,6 +243,11 @@ async function catch_and_retry_request (req, n) {
           console.error(`ERROR: 429 backing off for ${retry_after} seconds`)
           await new Promise(r => setTimeout(r, retry_after * 1000))
           return await catch_and_retry_request(req, n + 1)
+        case 502:
+          retry_after = n + 10
+          console.error(`ERROR: 502 backing off for ${retry_after} seconds`)
+          await new Promise(r => setTimeout(r, retry_after * 1000))
+          return await catch_and_retry_request(req, n + 1)
         case 422:
           if (e.response.data.errors.includes("Title is too short (minimum is 10 characters)")) {
             console.error("ERROR title is too short, making longer")
