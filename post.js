@@ -201,7 +201,7 @@ async function generate_diff (events) {
     val.run_at = now
     val.updated_at = new Date(val.updated_at)
 
-    const standard_title = e.title.toLowerCase().trim()
+    const standard_title = e.title.toLowerCase().trim().replace(/ *\(continued\) */,"")
     const duplicate = titles[standard_title]
     if (duplicate) {
       e.duplicate_of = duplicate
