@@ -129,6 +129,8 @@ async function get_events () {
     if (is_blank(title)) {
       console.log(`${id} has no title, not posting`)
       return
+    } else {
+      title = title.replace(/ *\(continued\) */,"")
     }
     let track = e["ed0250e6-6282-4922-9716-dfd7a29aafb7_categories_sort"][0]
     if (track) {
@@ -196,7 +198,7 @@ async function generate_diff (events) {
     val.run_at = now
     val.updated_at = new Date(val.updated_at)
 
-    const standard_title = e.title.toLowerCase().trim().replace(/ *\(continued\) */,"")
+    const standard_title = e.title.toLowerCase().trim()
     const duplicate = titles[standard_title]
     if (duplicate) {
       e.duplicate_of = duplicate
