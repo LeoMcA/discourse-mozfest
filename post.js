@@ -168,11 +168,6 @@ async function save_db (db) {
   await fs.writeFile("./db.json", JSON.stringify(db), "utf8")
 }
 
-async function fetch_titles () {
-  const data = await fs.readFile("./titles.json", "utf8")
-  return data ? JSON.parse(data) : {}
-}
-
 async function generate_diff (events) {
   const now = Date.now()
   const db = await fetch_db()
@@ -182,7 +177,7 @@ async function generate_diff (events) {
     delete: [],
     duplicates: []
   }
-  const titles = await fetch_titles()
+  const titles = {}
 
   if (process.env.DELETE_ALL === "true") {
     if (!db) return
