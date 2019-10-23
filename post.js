@@ -15,6 +15,7 @@ const INCLUDED_TRACKS = [
   "MoZone",
   "Innovation",
   "Dialogues & Debates",
+  "Emergent Sessions",
 ]
 const MOZFEST_CATEGORY_ID = process.env.CATEGORY_ID
 
