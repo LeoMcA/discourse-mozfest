@@ -268,7 +268,7 @@ async function catch_and_retry_request (req, n) {
                 q: `"${req.data.title}" in:title #mozfest:sessions`
               }
             })
-            if (search.data.posts[0].length && search.data.topics[0].length) {
+            if (search.data.posts[0] && search.data.topics[0]) {
               const post_id = search.data.posts[0].id
               const topic_id = search.data.topics[0].id
               console.error(`Duplicate topic found: topic: ${topic_id}, post: ${post_id}`)
