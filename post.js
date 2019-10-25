@@ -39,10 +39,12 @@ async function main () {
   try {
     const events = await get_events()
     const diff = await generate_diff(events)
+    const total = diff.post.length + diff.update.length + diff.delete.length
+    const count = 0
     const db = await fetch_db()
 
     for (const event of diff.post) {
-      console.log(`Posting "${event.title}"`)
+      console.log(`(${++count}/${total}) Posting "${event.title}"`)
       const res = await catch_and_retry_request({
         method: "post",
         url: "posts.json",
@@ -61,7 +63,7 @@ async function main () {
     }
 
     for (const event of diff.update) {
-      console.log(`Updating "${event.title}, topic: ${event.topic_id}, post: ${event.post_id}"`)
+      console.log(`(${++count}/${total}) Updating "${event.title}, topic: ${event.topic_id}, post: ${event.post_id}"`)
       await catch_and_retry_request({
         method: "put",
         url: `t/-/${event.topic_id}.json`,
@@ -87,7 +89,7 @@ async function main () {
     }
 
     for (const event of diff.delete) {
-      console.log(`Deleting ${event.topic_id}`)
+      console.log(`(${++count}/${total}) Deleting ${event.topic_id}`)
       await catch_and_retry_request({
         method: "delete",
         url: `t/${event.topic_id}`
