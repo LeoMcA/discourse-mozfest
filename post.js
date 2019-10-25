@@ -40,7 +40,7 @@ async function main () {
     const events = await get_events()
     const diff = await generate_diff(events)
     const total = diff.post.length + diff.update.length + diff.delete.length
-    const count = 0
+    var count = 0
     const db = await fetch_db()
 
     for (const event of diff.post) {
