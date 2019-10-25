@@ -261,7 +261,7 @@ async function catch_and_retry_request (req, n) {
           }
           if (e.response.data.errors.includes("Title has already been used")) {
             console.error("ERROR title has already been used, finding duplicate post")
-            const search = catch_and_retry_request({
+            const search = await catch_and_retry_request({
               method: "get",
               url: "search.json",
               params: {
