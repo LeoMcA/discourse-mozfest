@@ -259,6 +259,29 @@ async function catch_and_retry_request (req, n) {
             req.data.title = req.data.title + " - Mozilla Festival 2019 Session"
             return await catch_and_retry_request(req, n)
           }
+          if (e.response.data.errors.includes("Title has already been used")) {
+            console.error("ERROR title has already been used, finding duplicate post")
+            const search = catch_and_retry_request({
+              method: "get",
+              url: "search.json",
+              params: {
+                q: `"${req.data.title}" in:title #mozfest:sessions`
+              }
+            })
+            if (posts[0].length && topics[0].length) {
+              const post_id = posts[0].id
+              const topic_id = topics[0].id
+              console.error(`Duplicate topic found: topic: ${topic_id}, post: ${post_id}`)
+              return {
+                data: {
+                  topic_id: topic_id,
+                  id: post_id
+                }
+              }
+            } else {
+              console.error("Duplicate topic can't be found")
+            }
+          }
         default:
           console.error(`ERROR: unrecoverable, request:`)
           console.error(req)
